@@ -1,0 +1,963 @@
+#!/bin/bash
+
+MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$MYDIR/pashua.sh"
+CD="CocoaDialog.app/Contents/MacOS/CocoaDialog"
+
+#########INTRO PAGE#############
+
+conf="
+# Misc - Window title and save window position
+*.title = Otuku Mod Pack Installer
+*.autosavekey = yes
+
+#The info text box that will be used for instructions and information
+info.type = textbox
+info.default = Welcome to the Otuku mod pack installer![return][MC VERSION 1.7.10 ONLY][return][return]Included mods:[return]- Minecraft forge[return]- Liteloader[return]- Optifine Ultra[return]- Damage Indicators[return]- More Player Models V2[return]- Presence Footsteps[return]- VoxelMap[return]- WorldEdit CUI[return]- WorldEdit Wrapper[return][return]Press continue when you're ready to begin!
+info.disabled = 1
+info.width = 310
+info.height = 300
+info.y = 212
+info.x = 0
+
+#The continue button
+continue.type = defaultbutton
+continue.label = Continue
+
+#The logo
+img.type = image
+img.x = 350
+img.y = 100
+img.maxwidth = 250
+img.path = "$MYDIR"/logo2.png
+"
+
+#Run the dialog
+pashua_run "$conf" "$customLocation"
+
+#Declare mod status variables
+ou=0
+di=0
+pf=0
+mpm=0
+vm=0
+wew=0
+wec=0
+stop=0
+
+#While none are selected and the user hasn't cancelled
+while [ $ou == 0 ] && [ $di == 0 ] && [ $pf == 0 ] && [ $mpm == 0 ] && [ $vm == 0 ] && [ $wew == 0 ] && [ $wec == 0 ] && [ $stop = 0 ]; do
+	##########MOD CHOOSING PAGE##############
+
+	conf="
+	# Misc - Window title and save window position
+	*.title = Otuku Mod Pack Installer
+	*.autosavekey = yes
+
+	#The info text box that will be used for instructions and information
+	info.type = textbox
+	info.default = Step one: Installation configuration[return][return]Please use the checkboxes below to tell me what mods to install. If you'd like a small description of the a mod, just hover over it with your mouse!
+	info.disabled = 1
+	info.width = 310
+	info.height = 200
+	info.y = 310
+	info.x = 0
+
+	#A seperate, editable text box for the mod links
+	linkbox.type = textbox
+	linkbox.default = Optifine: http://is.gd/WgYkgc[return]Damage Indicators: http://is.gd/bJrtiN[return]More Player Models V2: http://is.gd/NvYWTE[return]Presence Footsteps: http://is.gd/S5GgU5[return]VoxelMap: http://is.gd/tRnnCw[return]WorldEdit Wrapper: http://is.gd/7J7GcY[return]WorldEdit CUI: http://is.gd/3SC0Hz
+	linkbox.label = Here's a list of forum links for each of the mods:
+	linkbox.width = 310
+	linkbox.height = 120
+	linkbox.tooltip = Yes, I am well aware of the fact that you can edit the text in this box... Oh well, It's necessary for you to be able to copy and paste it, apparently.
+	linkbox.x = 0
+	linkbox.y = 150
+
+	###Mod choosing checkboxes
+
+	#Optifine
+	ou.type = checkbox
+	ou.label = Optifine Ultra
+	#All mods are selected by default
+	ou.default = 1
+	ou.x = 0
+	ou.y = 90
+	#All mods have their description in a tooltip (displayed when hovered over)
+	ou.tooltip = OPTIFINE DESCRIPTION: Optifine is a mod that will allow you to both boost your game speed, and make your game look better. For many people has doubled or even TRIPLED their FPS!
+
+	#Damage Indicators
+	di.type = checkbox
+	di.label = Damage Indicators
+	di.default = 1
+	di.x = 175
+	di.y = 60
+	di.tooltip = DAMAGE INDICATORS DESCRIPTION: Damage indicators will show small particle like effects for when you hit players and mobs. The mod will also show an avatar of your target, with their health and any potion effects in your HUD! Works fabulously alongside More Player Models V2.
+
+	#More player models V2
+	mpm.type = checkbox
+	mpm.label = More Player Models V2
+	mpm.default = 1
+	mpm.x = 0
+	mpm.y = 30
+	mpm.tooltip = MORE PLAYER MODELS V2 DESCRIPTION: MPM2 allows you to completely change what your player looks like! You can change almost any aspect of your player, or you can change into any mob too! My favourite mod, 100% recommended.
+
+	#Presence Footsteps
+	pf.type = checkbox
+	pf.label = Presence Footsteps
+	pf.default = 1
+	pf.x = 175
+	pf.y = 30
+	pf.tooltip = PRESENCE FOOTSTEPS DESCRIPTION: This mod will completely overthrow the minecraft sound system, and makes it a billion times better. It allows the game to play sounds for jumping, strafing and moving through blocks such as sugar cane, and improves pretty much all of the default sounds too. I love this mod, I guess that it's just one of those things you just have to experience for yourself to know how good it really is.
+
+	#VoxelMap
+	vm.type = checkbox
+	vm.label = VoxelMap
+	vm.default = 1
+	vm.x = 0
+	vm.y = 60
+	vm.tooltip = VOXELMAP DESCRIPTION: Ever wanted a minimap? Boom, you've got one! The Voxel Box makes a brand new version of Zans Minimap, with improved waypoints and map rendering, the minimap will also show players and mobs, and the mod allows the user, if opped, to teleport to any waypoint with a single click. Very handy. I used to use Rei's Minimap... Then I found this!
+
+	#Worldedit wrapper
+	wew.type = checkbox
+	wew.label = WorldEdit Wrapper
+	wew.default = 1
+	wew.x = 175
+	wew.y = 0
+	wew.tooltip = WORLDEDIT WRAPPER DESCRIPTION: WorldEdit Wrapper simply allows you to use worldedit in single player. Awesome. 'Nuf said.
+
+	#Worldedit CUI
+	wec.type = checkbox
+	wec.label = WorlEdit CUI
+	wec.default = 1
+	wec.x = 0
+	wec.y = 0
+	wec.tooltip = WORLDEDITCUI DESCRIPTION: A very simple but very convenient mod for anyone that builds / wishes to build a lot with WorldEdit. This mod will display your current WE selection with a grid, which is EXTREMELY useful for checking if certain blocks are within it. This mod runs perfectly in unison with the next mod in our list, WorldEdit Wrapper.
+
+	#Notice the mod loaders don't have checkboxes. The program decides which ones to install based on the mods selected
+
+	#The continue button
+	db.type = defaultbutton
+	db.label = Continue
+
+	#The logo
+	img.type = image
+	img.x = 350
+	img.y = 100
+	img.maxwidth = 250
+	img.path = "$MYDIR"/logo2.png
+	"
+
+	#Run the dialog
+	pashua_run "$conf" "$customLocation"
+	
+	#If no mods were selected
+	if [ $ou == 0 ] && [ $di == 0 ] && [ $pf == 0 ] && [ $mpm == 0 ] && [ $vm == 0 ] && [ $wew == 0 ] && [ $wec == 0 ]; then
+		#########NO MODS CHOSEN#############
+
+		conf="
+		# Misc - Window title and save window position
+		*.title = Otuku Mod Pack Installer
+		*.autosavekey = yes
+
+		#The info text box that will be used for instructions and information
+		info.type = textbox
+		info.default = You didn't select any mods! Select back to try again, or quit to cancel the installation.
+		info.disabled = 1
+		info.width = 310
+		info.height = 300
+		info.y = 212
+		info.x = 0
+
+		#The cancel button
+		cancel.type = cancelbutton
+		cancel.label = Quit
+
+		#The continue button
+		continue.type = defaultbutton
+		continue.label = Back
+
+		#The logo
+		img.type = image
+		img.x = 350
+		img.y = 100
+		img.maxwidth = 250
+		img.path = "$MYDIR"/logo2.png
+		"
+
+		#Run the dialog
+		pashua_run "$conf" "$customLocation"
+	
+		#If the user cancelled, break from the loop
+		if [ $cancel == 1 ]; then
+			stop=1
+		fi
+	fi
+done
+
+#If the user didn't cancel
+if [ $stop == 0 ]; then
+
+	#Check the game directory is the default
+	if [ ! -d ~/library/application\ support/minecraft ]; then
+		conf="
+		# Misc - Window title and save window position
+		*.title = Otuku Mod Pack Installer
+		*.autosavekey = yes
+
+		#If the game directory isn't found, ask for it
+		
+		#The info text box that will be used for instructions and information
+		info.type = textbox
+		info.default = I can't find your minecraft folder! Can you show me where it is please? Hover over me if you need help.[return][return][return]Please note that you can't use the installer if you haven't got a copy of minecraft!
+		info.disabled = 1
+		info.width = 310
+		info.height = 300
+		info.y = 212
+		info.x = 0
+		info.tooltip = On the minecraft launcher screen, click 'Edit Profile' in the bottom left of the window. If the 'Game Directory' checkbox is ticked (if it isn't, I'm sorry but I can't help you!), the box of text next to it is where your minecraft folder is.
+
+		# Add a filesystem browser, store the game directory in variable gamedir
+		gamedir.type = openbrowser
+		gamedir.label = Where's your game directory?
+		gamedir.width = 310
+		gamedir.default = /users/$USER/library/application support/
+
+		#The continue button
+		continue.type = defaultbutton
+		continue.label = Continue
+
+		#The logo
+		img.type = image
+		img.x = 350
+		img.y = 100
+		img.maxwidth = 250
+		img.path = "$MYDIR"/logo2.png
+		"
+	
+		#Run the dialog
+		pashua_run "$conf" "$customLocation"
+		
+	else
+		#If the game directory is default set out variable to say that
+		gamedir="/users/$USER/library/application support/minecraft"
+	fi
+
+	#See if the mods folder is empty
+	if [ "$(ls "$gamedir/mods")" ]; then
+		empty=0
+	else
+		empty=1
+	fi
+
+
+	if [ $empty == 1 ]; then
+		if [ -d "$gamedir/mods/1.7.10" ]; then
+			empty=0
+		fi
+	fi
+
+	if [ $empty == 0 ]; then
+		#########YES PAGE#############
+
+		conf="
+		# Misc - Window title and save window position
+		*.title = Otuku Mod Pack Installer
+		*.autosavekey = yes
+
+		#The info text box that will be used for instructions and information
+		info.type = textbox
+		info.default = It looks like you already have some mods installed, would you like me to clean that up for you? I'll just put into a new folder inside the mods folder.[return][return]WARNING: Not doing this has been known to cause compatibility issues.
+		info.disabled = 1
+		info.width = 310
+		info.height = 300
+		info.y = 212
+		info.x = 0
+	
+		#The cancel button
+		cancel.type = cancelbutton
+		cancel.label = No
+
+		#The continue button
+		continue.type = defaultbutton
+		continue.label = Yes
+
+		#The logo
+		img.type = image
+		img.x = 350
+		img.y = 100
+		img.maxwidth = 250
+		img.path = "$MYDIR"/logo2.png
+		"
+	
+		#Run the dialog
+		pashua_run "$conf" "$customLocation"
+
+		#If user didn't cancel, ask for a name for the new folder
+		if [ $cancel == 0 ]; then
+			#########DECIDE NEW FOLDER NAME#############
+			
+			foldername="1.7.10"
+			while [ $foldername == "1.7.10" ]; do
+				conf="
+				# Misc - Window title and save window position
+				*.title = Otuku Mod Pack Installer
+				*.autosavekey = yes
+
+				#The info text box that will be used for instructions and information
+				info.type = textbox
+				info.default = What shall i call this new folder?[return]Anything except 1.7.10
+				info.disabled = 1
+				info.width = 310
+				info.height = 300
+				info.y = 212
+				info.x = 0
+	
+				foldername.type = textfield
+				foldername.default = old mods
+				foldername.mandatory = true
+
+				#The continue button
+				continue.type = defaultbutton
+				continue.label = Continue
+
+				#The logo
+				img.type = image
+				img.x = 350
+				img.y = 100
+				img.maxwidth = 250
+				img.path = "$MYDIR"/logo2.png
+				"
+	
+				#Run the dialog
+				pashua_run "$conf" "$customLocation"
+			done
+	
+			#backup variable, just incase the user wanted to call the new folder 'mods'... for whatever reason
+			foldernames="$foldername"
+	
+			if [ "$foldername" == "mods" ]; then
+				foldername="old mods"
+			fi
+		
+			#Move the old mods into a new folder
+			mv "$gamedir/mods" "$gamedir/$foldername"
+			mkdir "$gamedir/mods"
+			cp -r "$gamedir/$foldername" "$gamedir/mods/$foldernames"
+			rm -r "$gamedir/$foldername"
+		fi
+	fi
+	
+	#Confirm installation
+	#########START PAGE#############
+
+	conf="
+	# Misc - Window title and save window position
+	*.title = Otuku Mod Pack Installer
+	*.autosavekey = yes
+
+	#The info text box that will be used for instructions and information
+	info.type = textbox
+	info.default = Ok, looks like I'm ready to start the installation![return][return]Please don't quit or interrupt me or my files while I'm installing!
+	info.disabled = 1
+	info.width = 310
+	info.height = 300
+	info.y = 212
+	info.x = 0
+
+	#The cancel button
+	cancel.type = cancelbutton
+
+	#The continue button
+	continue.type = defaultbutton
+	continue.label = Begin
+
+	#The logo
+	img.type = image
+	img.x = 350
+	img.y = 100
+	img.maxwidth = 250
+	img.path = "$MYDIR"/logo2.png
+	"
+
+	#Run the dialog
+	pashua_run "$conf" "$customLocation"
+	
+	#If user didn't cancel
+	if [ $cancel == 0 ]; then
+		#Make temporary folder for downloaded files
+		mkdir ~/Otuku\ Installer\ Temp
+		mkdir ~/Otuku\ Installer\ Temp/versions
+		mkdir ~/Otuku\ Installer\ Temp/mods
+		
+		#Make a cocoadialog progress bar and download appropriate files
+	
+		rm -f /tmp/hpipe
+		mkfifo /tmp/hpipe
+		
+		$CD progressbar --text "Recieving compatible MC 1.7.10" --title "Otuku Mod Pack Installer" --indeterminate --debug < /tmp/hpipe &
+	
+		exec 3<> /tmp/hpipe
+		echo -n . >&3
+		
+		curl -o ~/Otuku\ Installer\ Temp/versions/1.7.10.zip https://dl.dropboxusercontent.com/s/llmqn4pvzh01rde/1.7.10.zip
+		
+		exec 3>&-
+		wait
+		rm -f /tmp/hpipe
+		
+		#Mod loaders (if needed)
+		rm -f /tmp/hpipe
+		mkfifo /tmp/hpipe
+	
+		$CD progressbar --text "Grabbing required mod loaders" --title "Otuku Mod Pack Installer" --indeterminate --debug < /tmp/hpipe &
+	
+		exec 3<> /tmp/hpipe
+		echo -n . >&3
+		
+		#Forge
+		if [ $ou == 1 ] || [ $di == 1 ] || [ $mpm == 1 ]; then
+			curl -o ~/Otuku\ Installer\ Temp/versions/forge.zip https://dl.dropboxusercontent.com/s/pssqsmg5lvmbt1i/1.7.10-Forge10.13.0.1180.zip
+		fi
+		
+		#Liteloader
+		if [ $pf == 1 ] || [ $vm == 1 ] || [ $wec == 1 ] || [ $wew == 1 ]; then
+			curl -o ~/Otuku\ Installer\ Temp/versions/liteloader.zip https://dl.dropboxusercontent.com/s/t1a2u62zx4crjqu/1.7.10-LiteLoader1.7.10.zip
+		fi
+		
+		exec 3>&-
+		wait
+		rm -f /tmp/hpipe
+		
+		#Mods (if selected)
+		rm -f /tmp/hpipe
+		mkfifo /tmp/hpipe
+	
+		$CD progressbar --text "Downloading mod packages" --percent 0 --title "Otuku Mod Pack Installer" < /tmp/hpipe &
+	
+		exec 3<> /tmp/hpipe
+		echo -n . >&3
+		
+		if [ $ou == 1 ]; then
+			curl -o ~/Otuku\ Installer\ Temp/mods/ou.jar https://dl.dropboxusercontent.com/s/d5qn70h8s5kjfzr/OptiFine_1.7.10_HD_U_A4.jar
+		fi
+		
+		echo 14 > /tmp/hpipe
+		
+		if [ $di == 1 ]; then
+			curl -o ~/Otuku\ Installer\ Temp/mods/di.jar https://dl.dropboxusercontent.com/s/5ubn49mh63p395v/%5B1.7.10%5DDamageIndicatorsMod-3.2.0.jar
+		fi
+
+		echo 28 > /tmp/hpipe
+
+		if [ $mpm == 1 ]; then
+			curl -o ~/Otuku\ Installer\ Temp/mods/mpm.jar https://dl.dropboxusercontent.com/s/9j5pfdag9mhip9r/MorePlayerModels_1.7.10.jar
+		fi
+
+		echo 42 > /tmp/hpipe
+
+		if [ $pf == 1 ]; then
+			curl -o ~/Otuku\ Installer\ Temp/mods/pf.litemod https://dl.dropboxusercontent.com/s/dqfzahn792ipcoa/PresenceFootsteps_r5b__1.7.10.litemod
+		fi
+
+		echo 56 > /tmp/hpipe
+
+		if [ $vm == 1 ]; then
+			curl -o ~/Otuku\ Installer\ Temp/mods/vm.litemod https://dl.dropboxusercontent.com/s/s1ogzwii1ug9bwk/mod_voxelMap_1.2.1_for_1.7.10.litemod
+		fi
+
+		echo 70 > /tmp/hpipe
+
+		if [ $wec == 1 ]; then
+			curl -o ~/Otuku\ Installer\ Temp/mods/wec.litemod https://dl.dropboxusercontent.com/s/2uhwgdqwaio93qj/mod_worldeditcui_1.7.10_00_mc1.7.10.litemod
+		fi
+
+		echo 84 > /tmp/hpipe
+
+		if [ $wew == 1 ]; then
+			curl -o ~/Otuku\ Installer\ Temp/mods/wew.litemod https://dl.dropboxusercontent.com/s/jo4vl3g7ucawisg/mod_worldeditwrapper_1.2.0_we5.6.2_mc1.7.10.litemod
+		fi
+		
+		echo 100 > /tmp/hpipe
+		
+		exec 3>&-
+		wait
+		 
+		
+		#Presence Footsteps resource pack (if needed)
+		if [ $pf == 1 ];then
+			rm -f /tmp/hpipe
+			mkfifo /tmp/hpipe
+	
+			$CD progressbar --text "Recieving Presence Footsteps resource pack" --title "Otuku Mod Pack Installer" --indeterminate < /tmp/hpipe &
+	
+			exec 3<> /tmp/hpipe
+			echo -n . >&3
+		
+			curl -o ~/Otuku\ Installer\ Temp/presencefootsteps.zip https://dl.dropboxusercontent.com/s/msoyorqmd5jo0ry/PresenceFootstepsOfficial.zip
+		
+			exec 3>&-
+			wait
+			rm -f /tmp/hpipe
+		fi
+		
+		#Begin installation
+		#1.7.10
+		if [ ! -d "$gamedir/versions/1.7.10" ]; then
+			mkdir ~/Otuku\ Installer\ Temp/temp
+			rm -f /tmp/hpipe
+			mkfifo /tmp/hpipe
+			
+			$CD progressbar --text "Installing fresh MC 1.7.10 jar" --title "Otuku Mod Pack Installer" --indeterminate --debug < /tmp/hpipe &
+	
+			exec 3<> /tmp/hpipe
+			echo -n . >&3
+		
+			unzip -d ~/Otuku\ Installer\ Temp/temp ~/Otuku\ Installer\ Temp/1.7.10.zip
+			cp -r ~/Otuku\ Installer\ Temp/temp/1.7.10 "$gamedir/versions/1.7.10"
+			
+			exec 3>&-
+			wait
+			rm -f /tmp/hpipe
+			rm -r ~/Otuku\ Installer\ Temp/temp
+		fi
+		
+		#Mod Loaders
+		#Forge
+		if [ $ou == 1 ] || [ $di == 1 ] || [ $mpm == 1 ];then
+			rm -f /tmp/hpipe
+			mkfifo /tmp/hpipe
+		
+			$CD progressbar --text "Installing Forge 10.13.0.1180" --title "Otuku Mod Pack Installer" --indeterminate --debug < /tmp/hpipe &
+	
+			exec 3<> /tmp/hpipe
+			echo -n . >&3
+			
+			mkdir ~/Otuku\ Installer\ Temp/temp
+			if [ -d "$gamedir/versions/1.7.10-Forge10.13.0.1180"]; then
+				rm -r /Users/$USER/Library/Application\ Support/minecraft/versions/1.7.10-Forge10.13.0.1180
+			fi
+			unzip ~/Otuku\ Installer\ Temp/temp -d ~/Otuku\ Installer\ Temp/versions/forge.zip
+			cp -r ~/otuku\ installer\ temp/temp/1.7.10-Forge10.13.0.1180 "$gamedir/versions/1.7.10-Forge10.13.0.1180"
+			rm -r ~/Otuku\ Installer\ Temp/temp
+			
+			exec 3>&-
+			wait
+			rm -f /tmp/hpipe
+		fi
+		
+		#Liteloader	
+		if [ $pf == 1 ] || [ $vm == 1 ] || [ $wec == 1 ] || [ $wew == 1 ]; then
+			rm -f /tmp/hpipe
+			mkfifo /tmp/hpipe
+		
+			$CD progressbar --text "Installing Liteloader 1.7.10" --title "Otuku Mod Pack Installer" --indeterminate --debug < /tmp/hpipe &
+	
+			exec 3<> /tmp/hpipe
+			echo -n . >&3
+			
+			mkdir ~/Otuku\ Installer\ Temp/temp
+			if [ -d "$gamedir/versions/1.7.10-LiteLoader1.7.10"]; then
+				rm -r /Users/$USER/Library/Application\ Support/minecraft/versions/1.7.10-LiteLoader1.7.10
+			fi
+			unzip ~/Otuku\ Installer\ Temp/temp -d ~/Otuku\ Installer\ Temp/versions/liteloader.zip
+			cp -r ~/otuku\ installer\ temp/temp/1.7.10-LiteLoader1.7.10 "$gamedir/versions/1.7.10-LiteLoader1.7.10"
+			rm -r ~/Otuku\ Installer\ Temp/temp
+			mkdir "$gamedir/mods/1.7.10"
+			
+			exec 3>&-
+			wait
+			rm -f /tmp/hpipe
+		fi
+		
+		#Presence Footsteps resource pack
+		if [ $pf == 1 ]; then
+			rm -f /tmp/hpipe
+			mkfifo /tmp/hpipe
+		
+			$CD progressbar --text "Installing Presence Footsteps resource pack" --title "Otuku Mod Pack Installer" --indeterminate --debug < /tmp/hpipe &
+	
+			exec 3<> /tmp/hpipe
+			echo -n . >&3
+			
+			cp ~/otuku\ installer\ temp/presencefootsteps.zip "$gamedir/resourcepacks/presencefootsteps.zip"
+			
+			exec 3>&-
+			wait
+			rm -f /tmp/hpipe
+		fi
+		
+		#Mod installation
+		rm -f /tmp/hpipe
+		mkfifo /tmp/hpipe
+	
+		$CD progressbar --text "Installing mod packages" --percent 0 --title "Otuku Mod Pack Installer" < /tmp/hpipe &
+	
+		exec 3<> /tmp/hpipe
+		echo -n . >&3
+		
+		if [ $ou == 1 ]; then
+			cp ~/Otuku\ Installer\ Temp/mods/ou.jar "$gamedir/mods/OptiFine_1.7.10_HD_U_A4.jar"
+		fi
+		
+		echo 14 > /tmp/hpipe
+		
+		if [ $di == 1 ]; then
+			cp ~/Otuku\ Installer\ Temp/mods/di.jar "$gamedir/mods/[1.7.10]DamageIndicatorsMod-3.2.0.jar"
+		fi
+
+		echo 28 > /tmp/hpipe
+
+		if [ $mpm == 1 ]; then
+			cp ~/Otuku\ Installer\ Temp/mods/mpm.jar "$gamedir/mods/MorePlayerModels_1.7.10.jar"
+		fi
+
+		echo 42 > /tmp/hpipe
+
+		if [ $pf == 1 ]; then
+			cp ~/Otuku\ Installer\ Temp/mods/pf.litemod "$gamedir/mods/1.7.10/PresenceFootsteps_r5b__1.7.10.litemod"
+		fi
+
+		echo 56 > /tmp/hpipe
+
+		if [ $vm == 1 ]; then
+			cp ~/Otuku\ Installer\ Temp/mods/vm.litemod "$gamedir/mods/1.7.10/mod_voxelMap_1.2.1_for_1.7.10.litemod"
+		fi
+
+		echo 70 > /tmp/hpipe
+
+		if [ $wec == 1 ]; then
+			cp ~/Otuku\ Installer\ Temp/mods/wec.litemod "$gamedir/mods/1.7.10/mod_worldeditcui_1.7.10_00_mc1.7.10.litemod"
+		fi
+
+		echo 84 > /tmp/hpipe
+
+		if [ $wew == 1 ]; then
+			cp ~/Otuku\ Installer\ Temp/mods/wew.litemod "$gamedir/mods/1.7.10/mod_worldeditwrapper_1.2.0_we5.6.2_mc1.7.10.litemod"
+		fi
+		
+		echo 100 > /tmp/hpipe
+		
+		exec 3>&-
+		wait
+		
+		#Delete temp folder
+		rm -f /tmp/hpipe
+		mkfifo /tmp/hpipe
+	
+		$CD progressbar --text "Cleaning up temporary files" --indeterminate --title "Otuku Mod Pack Installer" < /tmp/hpipe &
+	
+		exec 3<> /tmp/hpipe
+		echo -n . >&3
+		
+		rm -r ~/otuku\ installer\ temp
+		
+		exec 3>&-
+		wait
+		
+		#######INSTALLATION COMPLETE###########
+		conf="
+		# Misc - Window title and save window position
+		*.title = Otuku Mod Pack Installer
+		*.autosavekey = yes
+
+		#The info text box that will be used for instructions and information
+		info.type = textbox
+		info.default = Installation complete![return][return]Please click continue and follow the steps outlined, there's still a few things for you to do!
+		info.disabled = 1
+		info.width = 310
+		info.height = 300
+		info.y = 212
+		info.x = 0
+
+		#The continue button
+		continue.type = defaultbutton
+		continue.label = Continue
+
+		#The logo
+		img.type = image
+		img.x = 350
+		img.y = 100
+		img.maxwidth = 250
+		img.path = "$MYDIR"/logo2.png
+		"
+
+		#Run the dialog
+		pashua_run "$conf" "$customLocation"
+		
+		conf="
+		# Misc - Window title and save window position
+		*.title = Otuku Mod Pack Installer
+		*.autosavekey = yes
+
+		#The info text box that will be used for instructions and information
+		info.type = textbox
+		info.default = Open the minecraft launcher, but do not press play.[return][return]Press continue when you're ready.
+		info.disabled = 1
+		info.width = 310
+		info.height = 300
+		info.y = 212
+		info.x = 0
+
+		#The continue button
+		continue.type = defaultbutton
+		continue.label = Continue
+
+		#The logo
+		img.type = image
+		img.x = 350
+		img.y = 100
+		img.maxwidth = 250
+		img.path = "$MYDIR"/logo2.png
+		"
+
+		#Run the dialog
+		pashua_run "$conf" "$customLocation"
+		
+		conf="
+		# Misc - Window title and save window position
+		*.title = Otuku Mod Pack Installer
+		*.autosavekey = yes
+
+		#The info text box that will be used for instructions and information
+		info.type = textbox
+		info.default = In the bottom left, click New Profile.[return][return]Press continue when you're ready.
+		info.disabled = 1
+		info.width = 310
+		info.height = 300
+		info.y = 212
+		info.x = 0
+
+		#The continue button
+		continue.type = defaultbutton
+		continue.label = Continue
+
+		#The logo
+		img.type = image
+		img.x = 350
+		img.y = 100
+		img.maxwidth = 250
+		img.path = "$MYDIR"/logo2.png
+		"
+
+		#Run the dialog
+		pashua_run "$conf" "$customLocation"
+		
+		#Pick 'Use Version' option
+		if [ $pf == "y" ] || [ $vm == "y" ] || [ $wec == "y" ] || [ $wew == "y" ]; then
+			useversion="release 1.7.10-LiteLoader1.7.10"
+		else
+			useversion="release 1.7.10-Forge10.13.0.1180"
+		fi
+		
+		conf="
+		# Misc - Window title and save window position
+		*.title = Otuku Mod Pack Installer
+		*.autosavekey = yes
+
+		#The info text box that will be used for instructions and information
+		info.type = textbox
+		info.default = Leave all the settings default apart from:[return]- You can choose Profile Name, mine is called Modded Client[return]- Use Version must be $useversion[return][return]Press continue when you're ready.
+		info.disabled = 1
+		info.width = 310
+		info.height = 300
+		info.y = 212
+		info.x = 0
+
+		#The continue button
+		continue.type = defaultbutton
+		continue.label = Continue
+
+		#The logo
+		img.type = image
+		img.x = 350
+		img.y = 100
+		img.maxwidth = 250
+		img.path = "$MYDIR"/logo2.png
+		"
+
+		#Run the dialog
+		pashua_run "$conf" "$customLocation"
+		
+		
+		conf="
+		# Misc - Window title and save window position
+		*.title = Otuku Mod Pack Installer
+		*.autosavekey = yes
+
+		#The info text box that will be used for instructions and information
+		info.type = textbox
+		info.default = Now, in the bottom right, click Save Profile.[return][return]Press continue when you're ready.
+		info.disabled = 1
+		info.width = 310
+		info.height = 300
+		info.y = 212
+		info.x = 0
+
+		#The continue button
+		continue.type = defaultbutton
+		continue.label = Continue
+
+		#The logo
+		img.type = image
+		img.x = 350
+		img.y = 100
+		img.maxwidth = 250
+		img.path = "$MYDIR"/logo2.png
+		"
+
+		#Run the dialog
+		pashua_run "$conf" "$customLocation"
+		
+		
+		conf="
+		# Misc - Window title and save window position
+		*.title = Otuku Mod Pack Installer
+		*.autosavekey = yes
+
+		#The info text box that will be used for instructions and information
+		info.type = textbox
+		info.default = Make sure the new profile is selected in the bottom left, and click Play![return]NOTE: The first launch will take longer than normal, just let the game do its thing.[return][return]Press continue when you're ready.
+		info.disabled = 1
+		info.width = 310
+		info.height = 300
+		info.y = 212
+		info.x = 0
+
+		#The continue button
+		continue.type = defaultbutton
+		continue.label = Continue
+
+		#The logo
+		img.type = image
+		img.x = 350
+		img.y = 100
+		img.maxwidth = 250
+		img.path = "$MYDIR"/logo2.png
+		"
+
+		#Run the dialog
+		pashua_run "$conf" "$customLocation"
+		
+		if [ $ou == 1 ]; then
+			conf="
+			# Misc - Window title and save window position
+			*.title = Otuku Mod Pack Installer
+			*.autosavekey = yes
+
+			#The info text box that will be used for instructions and information
+			info.type = textbox
+			info.default = You have installed Optifine, which adds a TON of new features and settings. Go into your video settings and change it to your liking.
+			info.disabled = 1
+			info.width = 310
+			info.height = 300
+			info.y = 212
+			info.x = 0
+
+			#The continue button
+			continue.type = defaultbutton
+			continue.label = Continue
+
+			#The logo
+			img.type = image
+			img.x = 350
+			img.y = 100
+			img.maxwidth = 250
+			img.path = "$MYDIR"/logo2.png
+			"
+
+			#Run the dialog
+			pashua_run "$conf" "$customLocation"
+		fi
+		
+		if [ $pf == 1 ]; then
+			conf="
+			# Misc - Window title and save window position
+			*.title = Otuku Mod Pack Installer
+			*.autosavekey = yes
+
+			#The info text box that will be used for instructions and information
+			info.type = textbox
+			info.default = You have installed Presence Footsteps, which requires you to use a custom resource pack. Go into your resource pack settings, and select the one named presencefootsteps.zip
+			info.disabled = 1
+			info.width = 310
+			info.height = 300
+			info.y = 212
+			info.x = 0
+
+			#The continue button
+			continue.type = defaultbutton
+			continue.label = Continue
+
+			#The logo
+			img.type = image
+			img.x = 350
+			img.y = 100
+			img.maxwidth = 250
+			img.path = "$MYDIR"/logo2.png
+			"
+
+			#Run the dialog
+			pashua_run "$conf" "$customLocation"
+		fi
+		
+		conf="
+		# Misc - Window title and save window position
+		*.title = Otuku Mod Pack Installer
+		*.autosavekey = yes
+
+		#The info text box that will be used for instructions and information
+		info.type = textbox
+		info.default = I recommend going through your controls settings, as many of the mods included in this installer add some extra controls. Make sure they do not clash, and make sure they suit you!
+		info.disabled = 1
+		info.width = 310
+		info.height = 300
+		info.y = 212
+		info.x = 0
+
+		#The continue button
+		continue.type = defaultbutton
+		continue.label = Continue
+
+		#The logo
+		img.type = image
+		img.x = 350
+		img.y = 100
+		img.maxwidth = 250
+		img.path = "$MYDIR"/logo2.png
+		"
+
+		#Run the dialog
+		pashua_run "$conf" "$customLocation"
+		
+		conf="
+		# Misc - Window title and save window position
+		*.title = Otuku Mod Pack Installer
+		*.autosavekey = yes
+
+		#The info text box that will be used for instructions and information
+		info.type = textbox
+		info.default = Well, I think that's about everything. If you had any problems with the installation process, just ask me about it and I am sure I can help you out.[return]Happy Minecrafting![return][return][return][return]DISCLAIMER[return] I claim neither ownership of nor rights to any of the files or modifications used in this installer script. Credit was given to original mod and code authors via forum page links. I as the programmer am in no way responsible for any loss of files and/or data as a result of use of this script.
+		info.disabled = 1
+		info.width = 310
+		info.height = 300
+		info.y = 212
+		info.x = 0
+
+		#The continue button
+		continue.type = defaultbutton
+		continue.label = Quit
+
+		#The logo
+		img.type = image
+		img.x = 350
+		img.y = 100
+		img.maxwidth = 250
+		img.path = "$MYDIR"/logo2.png
+		"
+
+		#Run the dialog
+		pashua_run "$conf" "$customLocation"
+		
+		$CD bubble --debug --title "Achievement get!" --text "Installed some awesome mods!" --background-top "1E6109" --background-bottom "3DFF00" --border-color "523939" --icon "atom"
+	fi
+fi
