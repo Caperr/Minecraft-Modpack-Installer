@@ -1,5 +1,5 @@
 # Minecraft-Modpack-Installer
-A simple Minecraft mod pack installer for macOS, that I wrote in BASH, Pashua and CocoaDialogue when I was 15. Demonstrates file downloading, GUIs, and archive/file manipulation.
+A simple Minecraft mod pack installer for macOS that I wrote in BASH, using the Pashua and CocoaDialogue libraries, when I was 15. Demonstrates file downloading, GUIs, and archive/file manipulation.
 
 The program downloads what ever files are necessary from my dropbox drive: https://www.dropbox.com/sh/nry3fqc90ip2riw/AADzIlmHkEppu_8o5TcI9EX2a?dl=0
 
